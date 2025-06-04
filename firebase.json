@@ -1,0 +1,23 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "dijitalpsikiyatri-bfcd7",
+          "appId": "1:1035096802672:android:c27c31fc9672446ec53bb5",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "dijitalpsikiyatri-bfcd7",
+          "configurations": {
+            "android": "1:1035096802672:android:c27c31fc9672446ec53bb5",
+            "ios": "1:1035096802672:ios:8e81b25b795b6df3c53bb5",
+            "web": "1:1035096802672:web:9d5f5fb6c5f21dc9c53bb5"
+          }
+        }
+      }
+    }
+  }
+}
