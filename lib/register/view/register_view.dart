@@ -210,7 +210,7 @@ class _RegisterViewContentState extends State<_RegisterViewContent>
             Text(
               'Dijital',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: screenSize.width / 8,
                 fontWeight: FontWeight.normal,
                 letterSpacing: -2,
@@ -240,7 +240,7 @@ class _RegisterViewContentState extends State<_RegisterViewContent>
             Text(
               'kiyatri',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: screenSize.width / 8,
                 fontWeight: FontWeight.normal,
                 letterSpacing: -2,
@@ -292,7 +292,7 @@ class _RegisterViewContentState extends State<_RegisterViewContent>
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isActive ? colorss.primaryColorLight : Colors.white,
+            color: isActive ? colorss.backgroundColor : colorss.primaryColor,
             fontSize: 14,
           ),
         ),
@@ -433,7 +433,7 @@ class _RegisterViewContentState extends State<_RegisterViewContent>
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: const Color.fromARGB(255, 77, 31, 31).withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: colorss.primaryColor.withOpacity(0.3),
@@ -447,10 +447,10 @@ class _RegisterViewContentState extends State<_RegisterViewContent>
             controller: controller,
             obscureText: obscureTextValue,
             keyboardType: keyboardType,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.black),
             decoration: InputDecoration(
               labelText: label,
-              labelStyle: const TextStyle(color: Colors.white70),
+              labelStyle: const TextStyle(color: colorss.primaryColor),
               prefixIcon:
                   Icon(icon, color: colorss.primaryColor.withOpacity(0.7)),
               suffixIcon: isPassword
@@ -500,7 +500,7 @@ class _RegisterViewContentState extends State<_RegisterViewContent>
               child: const Text(
                 'Geri',
                 style: TextStyle(
-                  color: colorss.textColor,
+                  color: colorss.backgroundColorLight,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -564,7 +564,7 @@ class _RegisterViewContentState extends State<_RegisterViewContent>
             child: Text(
               viewModel.currentStep == 0 ? 'İleri' : 'Kayıt Ol',
               style: const TextStyle(
-                color: colorss.textColor,
+                color: colorss.backgroundColorLight,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),

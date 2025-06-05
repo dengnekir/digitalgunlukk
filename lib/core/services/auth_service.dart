@@ -3,13 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import '../models/user_model.dart';
-import 'cloudinary_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  final CloudinaryService _cloudinaryService = CloudinaryService();
 
   // Mevcut kullanıcı durumunu stream olarak dinle
   Stream<User?> get authStateChanges => _auth.authStateChanges();

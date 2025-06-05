@@ -192,7 +192,7 @@ class _LoginViewContentState extends State<_LoginViewContent>
             Text(
               'Dijital',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: screenSize.width / 8,
                 fontWeight: FontWeight.normal,
                 letterSpacing: -2,
@@ -222,7 +222,7 @@ class _LoginViewContentState extends State<_LoginViewContent>
             Text(
               'kiyatri',
               style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: screenSize.width / 8,
                 fontWeight: FontWeight.normal,
                 letterSpacing: -2,
@@ -336,7 +336,7 @@ class _LoginViewContentState extends State<_LoginViewContent>
         ),
         const Text(
           'Beni Hatırla',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
       ],
     );

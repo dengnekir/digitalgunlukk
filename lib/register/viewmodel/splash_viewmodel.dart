@@ -4,6 +4,7 @@ import '../view/register_view.dart';
 import '../view/login_view.dart';
 import '../../profile/view/profile_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../core/bottombar_page.dart';
 
 class SplashViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,20 +14,19 @@ class SplashViewModel extends ChangeNotifier {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        // Kullanıcı oturum açmışsa, profil sayfasına yönlendir
+        // Kullanıcı oturum açmışsa, BottomBarPage'e yönlendir
         if (context.mounted) {
-          // Firestore'dan ek kullanıcı bilgilerini kontrol edebiliriz (isteğe bağlı)
           try {
             await _firestore.collection('users').doc(user.uid).get();
             print(
-                'Kullanıcı giriş yapmış durumda, profil sayfasına yönlendiriliyor: ${user.uid}');
+                'Kullanıcı giriş yapmış durumda, ana sayfaya yönlendiriliyor: ${user.uid}');
           } catch (e) {
             print('Firestore veri okuma hatası (önemli değil): $e');
           }
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const ProfileView()),
+            MaterialPageRoute(builder: (context) => const BottomBarPage()),
           );
         }
       } else {

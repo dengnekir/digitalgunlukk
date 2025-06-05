@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'register/view/splash_view.dart';
 import 'core/bottombar_page.dart';
 import 'package:digitalgunluk/history/viewmodel/history_viewmodel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +56,7 @@ class MyApp extends StatelessWidget {
             bodyMedium: TextStyle(color: Colors.black),
           ),
         ),
-        home: const BottomBarPage(),
+        home: const SplashView(),
       ),
     );
   }

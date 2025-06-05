@@ -6,6 +6,7 @@ import '../../core/widgets/colors.dart';
 import 'edit_profile_view.dart';
 import 'about_us_view.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({Key? key}) : super(key: key);
@@ -27,14 +28,29 @@ class _ProfileViewContent extends StatefulWidget {
 }
 
 class _ProfileViewContentState extends State<_ProfileViewContent> {
+  String _appVersion = 'Yükleniyor...';
+
   @override
   void initState() {
     super.initState();
+    _loadAppVersion();
 
     // Kullanıcı verilerini yükle
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProfileViewModel>().loadUserData();
     });
+  }
+
+  Future<void> _loadAppVersion() async {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = packageInfo.version;
+    });
+  }
+
+  String _capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
   Future<void> _launchEmail(String email) async {
@@ -64,7 +80,15 @@ class _ProfileViewContentState extends State<_ProfileViewContent> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil', style: TextStyle(color: Colors.black)),
+        title: const Text(
+          'Profil',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -84,22 +108,24 @@ class _ProfileViewContentState extends State<_ProfileViewContent> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: screenSize.height * 0.02),
-                        _buildProfileHeader(viewModel, screenSize),
                         SizedBox(height: screenSize.height * 0.03),
+                        _buildProfileHeader(viewModel, screenSize),
+                        SizedBox(height: screenSize.height * 0.04),
                         Text(
                           'Ayarlar',
                           style: TextStyle(
                             color: Colors.black87,
-                            fontSize: screenSize.width * 0.045,
+                            fontSize: screenSize.width * 0.048,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: screenSize.height * 0.02),
                         _buildSettingsList(viewModel, screenSize),
-                        SizedBox(height: screenSize.height * 0.04),
+                        SizedBox(height: screenSize.height * 0.05),
                         _buildLogoutButton(viewModel, screenSize),
-                        SizedBox(height: screenSize.height * 0.04),
+                        SizedBox(height: screenSize.height * 0.02),
+                        _buildAppVersionText(screenSize),
+                        SizedBox(height: screenSize.height * 0.03),
                       ],
                     ),
                   ),
@@ -114,17 +140,19 @@ class _ProfileViewContentState extends State<_ProfileViewContent> {
       children: [
         SizedBox(height: screenSize.height * 0.02),
         Text(
-          '${viewModel.userModel!.name} ${viewModel.userModel!.surname}',
+          '${_capitalizeFirstLetter(viewModel.userModel!.name)} ${_capitalizeFirstLetter(viewModel.userModel!.surname)}',
           style: TextStyle(
-            fontSize: screenSize.width * 0.06,
-            fontWeight: FontWeight.bold,
+            fontSize: screenSize.width * 0.065,
+            fontWeight: FontWeight.w700,
             color: Colors.black,
+            letterSpacing: -0.5,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           viewModel.userModel!.email,
           style: TextStyle(
-            fontSize: screenSize.width * 0.035,
+            fontSize: screenSize.width * 0.038,
             color: Colors.black54,
           ),
         ),
@@ -196,9 +224,15 @@ class _ProfileViewContentState extends State<_ProfileViewContent> {
           vertical: screenSize.height * 0.02,
         ),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -232,14 +266,13 @@ class _ProfileViewContentState extends State<_ProfileViewContent> {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorss.logoutButtonColor,
           padding: EdgeInsets.symmetric(
-            horizontal: screenSize.width * 0.1,
-            vertical: screenSize.height * 0.025,
+            vertical: screenSize.height * 0.02,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 5,
-          shadowColor: colorss.logoutButtonColor.withOpacity(0.5),
+          elevation: 0,
+          shadowColor: Colors.transparent,
         ),
         onPressed: () async {
           await viewModel.signOut();
@@ -254,17 +287,29 @@ class _ProfileViewContentState extends State<_ProfileViewContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.logout,
-                color: Colors.white, size: screenSize.width * 0.06),
-            SizedBox(width: screenSize.width * 0.03),
+                color: Colors.white, size: screenSize.width * 0.055),
+            SizedBox(width: screenSize.width * 0.025),
             Text(
               'Çıkış Yap',
               style: TextStyle(
-                fontSize: screenSize.width * 0.045,
+                fontSize: screenSize.width * 0.04,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppVersionText(Size screenSize) {
+    return Center(
+      child: Text(
+        'Uygulama Sürümü: $_appVersion',
+        style: TextStyle(
+          fontSize: screenSize.width * 0.035,
+          color: Colors.grey.shade600,
         ),
       ),
     );
