@@ -8,13 +8,15 @@ import '../../core/widgets/colors.dart'; // colorss sınıfı için import ettim
 class HistoryViewModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final HomeService _homeService = HomeService(); // HomeService'i ekledim
+  final HomeService _homeService = HomeService();
 
-  Map<DateTime, List<ConversationSummary>> _summaries = {};
-  Map<DateTime, List<ConversationSummary>> get summaries => _summaries;
+  // Değişiklik: Artık her gün için tek bir özet saklayacağız
+  Map<DateTime, ConversationSummary> _summaries = {};
+  Map<DateTime, ConversationSummary> get summaries => _summaries;
 
-  List<ConversationSummary> _selectedDaySummaries = [];
-  List<ConversationSummary> get selectedDaySummaries => _selectedDaySummaries;
+  // Değişiklik: Seçilen gün için tek bir özet saklayacağız
+  ConversationSummary? _selectedDaySummary;
+  ConversationSummary? get selectedDaySummary => _selectedDaySummary;
 
   HistoryViewModel() {
     _loadSummaries();
@@ -33,16 +35,69 @@ class HistoryViewModel extends ChangeNotifier {
           .get();
 
       _summaries = {}; // Önceki verileri temizle
+      debugPrint('Özetler yükleniyor...');
+
+      // Geçici olarak günlük özetleri gruplamak için bir harita
+      Map<DateTime, List<ConversationSummary>> dailyGroupedSummaries = {};
+
       for (var doc in snapshot.docs) {
         final summary = ConversationSummary.fromJson(doc.data());
         final date = DateTime(summary.timestamp.year, summary.timestamp.month,
             summary.timestamp.day);
-        _summaries.update(date, (value) => value..add(summary),
+        dailyGroupedSummaries.update(date, (value) => value..add(summary),
             ifAbsent: () => [summary]);
       }
+
+      // Her gün için tek bir özet ve ruh hali oluştur
+      for (var entry in dailyGroupedSummaries.entries) {
+        final date = entry.key;
+        final summariesList = entry.value;
+
+        // Tüm userText ve aiResponse'ları birleştir
+        final combinedUserTexts =
+            summariesList.map((s) => s.userText).join(' ');
+        final combinedAiResponses =
+            summariesList.map((s) => s.aiResponse).join(' ');
+
+        // Yeni özet ve ruh hali oluşturmak için HomeService kullan
+        final newSummaryText = await _homeService.getConversationSummary(
+            combinedUserTexts,
+            combinedAiResponses.isNotEmpty
+                ? combinedAiResponses
+                : 'Hiçbir yapay zeka yanıtı yok.');
+        final newMood =
+            await _homeService.getMoodClassification(combinedUserTexts);
+
+        if (newSummaryText != null) {
+          final aggregatedSummary = ConversationSummary(
+            userText: combinedUserTexts,
+            aiResponse: combinedAiResponses,
+            summary: newSummaryText, // Yeni oluşturulan özet
+            timestamp: date, // Normalleştirilmiş tarih
+            mood: newMood, // Yeni oluşturulan ruh hali
+          );
+          _summaries[date] = aggregatedSummary;
+          debugPrint(
+              'Agregasyon sonrası yeni özet eklendi: $date - ${aggregatedSummary.summary} (Mood: ${aggregatedSummary.mood})');
+        } else {
+          debugPrint('Agregasyon sonrası özet oluşturulamadı: $date');
+        }
+      }
+
+      debugPrint(
+          'Toplam yüklenen agregasyonlu özet sayısı: ${_summaries.length}');
+      // Seçili gün varsa, onu da güncelle
+      if (_selectedDaySummary != null) {
+        final normalizedSelectedDay = DateTime(
+            _selectedDaySummary!.timestamp.year,
+            _selectedDaySummary!.timestamp.month,
+            _selectedDaySummary!.timestamp.day);
+        _selectedDaySummary = _summaries[normalizedSelectedDay];
+      }
+
       notifyListeners();
     } catch (e) {
-      print('Özetler yüklenirken hata oluştu: $e');
+      debugPrint('Özetler yüklenirken hata oluştu: $e');
     }
   }
 
@@ -65,17 +120,21 @@ class HistoryViewModel extends ChangeNotifier {
 
       return snapshot.docs.map((doc) => Message.fromJson(doc.data())).toList();
     } catch (e) {
-      print('Günlük mesajlar yüklenirken hata oluştu: $e');
+      debugPrint('Günlük mesajlar yüklenirken hata oluştu: $e');
       return [];
     }
   }
 
   void onDaySelected(DateTime selectedDay) async {
-    _selectedDaySummaries = _summaries[selectedDay] ?? [];
+    debugPrint('Seçilen gün: $selectedDay');
+    final normalizedSelectedDay =
+        DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+    _selectedDaySummary = _summaries[normalizedSelectedDay]; // Tek özeti al
+    debugPrint(
+        'Seçilen gün için özet (${normalizedSelectedDay}): ${_selectedDaySummary?.summary ?? "Bulunamadı"}');
 
     // Eğer seçilen gün bugünse ve henüz özet yoksa, anlık özet oluşturmaya çalış
-    if (_selectedDaySummaries.isEmpty &&
-        isSameDay(selectedDay, DateTime.now())) {
+    if (_selectedDaySummary == null && isSameDay(selectedDay, DateTime.now())) {
       final dailyMessages = await _loadDailyMessages(selectedDay);
       if (dailyMessages.isNotEmpty) {
         final userTexts = dailyMessages
@@ -98,13 +157,16 @@ class HistoryViewModel extends ChangeNotifier {
               await _homeService.getMoodClassification(userTexts);
 
           if (temporarySummaryText != null) {
-            _selectedDaySummaries.add(ConversationSummary(
+            _selectedDaySummary = ConversationSummary(
+              // Tek özeti set et
               userText: userTexts,
               aiResponse: aiTexts,
               summary: temporarySummaryText,
-              timestamp: DateTime.now(),
+              timestamp: DateTime.now(), // Geçici olduğu için şimdiki zaman
               mood: temporaryMood,
-            ));
+            );
+            debugPrint(
+                'Anlık özet oluşturuldu: ${_selectedDaySummary!.summary}');
           }
         }
       }
@@ -112,32 +174,26 @@ class HistoryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Takvimde günleri renklendirmek için kullanılacak
   Color getMoodColorForDay(DateTime day) {
-    final dailySummaries = _summaries[day];
-    if (dailySummaries == null || dailySummaries.isEmpty) {
-      // Eğer bugünse ve henüz özet yoksa, anlık ruh halini belirlemeye çalış
-      // Ancak bu metot senkron olduğu için burada anlık ruh hali belirleme yapılamaz.
-      // Takvim işaretleyicileri için şeffaf döndürüyorum.
+    final ConversationSummary? dailySummary = _summaries[day];
+    if (dailySummary == null) {
       return Colors.transparent;
     }
 
-    // Günlük ruh hallerinin ortalamasını veya en baskın olanı alabilirsiniz.
-    // Basitçe ilk özetteki ruh haline göre renk belirliyorum.
-    switch (dailySummaries.first.mood) {
+    switch (dailySummary.mood?.trim()) {
       case 'mutlu':
-        return Colors.green.shade300; // Mutlu için yeşil tonu
+        return Colors.limeAccent.shade700;
       case 'üzgün':
-        return Colors.red.shade300; // Üzgün için kırmızı tonu
+        return Colors.deepPurple.shade700;
       case 'normal':
-        return Colors.blue.shade300; // Normal için mavi tonu
+        return Colors.amber.shade400;
       default:
-        return Colors.transparent;
+        return Colors.blueGrey.shade400;
     }
   }
 
   String getMoodEmoji(String? mood) {
-    switch (mood) {
+    switch (mood?.trim()) {
       case 'mutlu':
         return '😊';
       case 'üzgün':

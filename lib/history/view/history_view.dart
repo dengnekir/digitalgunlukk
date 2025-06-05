@@ -43,6 +43,7 @@ class _HistoryViewState extends State<HistoryView> {
             backgroundColor: Colors.white,
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.black),
+            centerTitle: true,
           ),
           body: Column(
             children: [
@@ -79,14 +80,29 @@ class _HistoryViewState extends State<HistoryView> {
                     color: Colors.transparent,
                     shape: BoxShape.circle,
                   ),
-                  defaultTextStyle:
-                      const TextStyle(color: Colors.black, fontSize: 16),
-                  weekendTextStyle:
-                      const TextStyle(color: Colors.black54, fontSize: 16),
-                  holidayTextStyle:
-                      const TextStyle(color: Colors.black, fontSize: 16),
-                  selectedTextStyle: const TextStyle(color: Colors.white),
-                  todayTextStyle: const TextStyle(color: Colors.white),
+                  defaultTextStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      height: null,
+                      decoration: TextDecoration.none),
+                  weekendTextStyle: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 16,
+                      height: null,
+                      decoration: TextDecoration.none),
+                  holidayTextStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      height: null,
+                      decoration: TextDecoration.none),
+                  selectedTextStyle: const TextStyle(
+                      color: Colors.white,
+                      height: null,
+                      decoration: TextDecoration.none),
+                  todayTextStyle: const TextStyle(
+                      color: Colors.white,
+                      height: null,
+                      decoration: TextDecoration.none),
                 ),
                 headerStyle: HeaderStyle(
                   formatButtonVisible: false,
@@ -94,11 +110,13 @@ class _HistoryViewState extends State<HistoryView> {
                   titleTextStyle: const TextStyle(
                       color: Colors.black,
                       fontSize: 20.0,
-                      fontWeight: FontWeight.bold),
-                  leftChevronIcon:
-                      Icon(Icons.chevron_left, color: Colors.black, size: 30),
-                  rightChevronIcon:
-                      Icon(Icons.chevron_right, color: Colors.black, size: 30),
+                      fontWeight: FontWeight.bold,
+                      height: null,
+                      decoration: TextDecoration.none),
+                  leftChevronIcon: const Icon(Icons.chevron_left,
+                      color: Colors.black, size: 30),
+                  rightChevronIcon: const Icon(Icons.chevron_right,
+                      color: Colors.black, size: 30),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
@@ -149,70 +167,75 @@ class _HistoryViewState extends State<HistoryView> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: viewModel.selectedDaySummaries.isEmpty
+                child: viewModel.selectedDaySummary == null
                     ? const Center(
                         child: Text(
                           'Seçilen güne ait özet bulunamadı.',
                           style: TextStyle(color: Colors.black54, fontSize: 16),
                         ),
                       )
-                    : ListView.builder(
+                    : Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        itemCount: viewModel.selectedDaySummaries.length,
-                        itemBuilder: (context, index) {
-                          final summary = viewModel.selectedDaySummaries[index];
-                          final Color moodBaseColor =
-                              viewModel.getMoodColorForDay(summary.timestamp);
-                          final Color cardColor =
-                              moodBaseColor.withOpacity(0.4);
-                          final Color textColor =
-                              moodBaseColor != Colors.transparent &&
-                                      (moodBaseColor.red * 0.299 +
-                                              moodBaseColor.green * 0.587 +
-                                              moodBaseColor.blue * 0.114) <
-                                          186
-                                  ? Colors.white
-                                  : Colors.black87;
+                        child: Builder(
+                          builder: (context) {
+                            final summary = viewModel.selectedDaySummary!;
+                            final Color moodBaseColor =
+                                viewModel.getMoodColorForDay(summary.timestamp);
+                            final Color cardColor = moodBaseColor;
+                            final Color textColor =
+                                moodBaseColor.computeLuminance() > 0.5
+                                    ? Colors.black
+                                    : Colors.white;
 
-                          return Card(
-                            color: cardColor,
-                            margin: const EdgeInsets.only(bottom: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(color: Colors.grey.shade300),
-                            ),
-                            elevation: 2,
-                            shadowColor: Colors.grey.withOpacity(0.3),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Özet: ${summary.summary}',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: textColor),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Ruh Hali: ${summary.mood ?? "Bilinmiyor"} ${viewModel.getMoodEmoji(summary.mood)}',
-                                    style: TextStyle(
-                                        fontSize: 14, color: textColor),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Tarih: ${summary.timestamp.day}.${summary.timestamp.month}.${summary.timestamp.year}',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: textColor.withOpacity(0.7)),
-                                  ),
-                                ],
+                            return Card(
+                              color: cardColor,
+                              margin: const EdgeInsets.only(bottom: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: Colors.grey.shade300),
                               ),
-                            ),
-                          );
-                        },
+                              elevation: 2,
+                              shadowColor: Colors.grey.withOpacity(0.3),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Özet: ${summary.summary}',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: textColor),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Ruh Hali: ${summary.mood ?? "Bilinmiyor"} ${viewModel.getMoodEmoji(summary.mood)}',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: textColor,
+                                          height: null,
+                                          decoration: TextDecoration.none),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Tarih: ${summary.timestamp.day}.${summary.timestamp.month}.${summary.timestamp.year}',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: textColor,
+                                          height: null,
+                                          decoration: TextDecoration.none),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
               ),
             ],
