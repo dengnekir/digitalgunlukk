@@ -70,7 +70,7 @@ class HomeService {
     final model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: _apiKey);
 
     final prompt =
-        "Aşağıdaki kullanıcı mesajını ve psikiyatrist yanıtını en fazla 30 kelimeyle özetle. Yanıtta yalnızca özeti belirt. Örneğin: \"Bugünkü sohbetin özeti: Kullanıcı kaygılı hissediyor, psikiyatrist rahatlatıcı bir tavsiye verdi.\"\n\nKullanıcı: \"$userText\"\nPsikiyatrist: \"$aiText\"";
+        "Aşağıdaki kullanıcı mesajını ve psikiyatrist yanıtını en fazla 100 kelimeyle özetle. Yanıtta yalnızca özeti belirt. Örneğin: \"Bugünkü sohbetin özeti: Kullanıcı kaygılı hissediyor, psikiyatrist rahatlatıcı bir tavsiye verdi.\"\n\nKullanıcı: \"$userText\"\nPsikiyatrist: \"$aiText\"";
     final content = [Content.text(prompt)];
 
     try {
