@@ -2,8 +2,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:digitalgunluk/home/home_viewmodel.dart'; // Message sınıfı için import ettim
 
 class HomeService {
-  final String _apiKey =
-      'AIzaSyDh8d089GvqGvtQwk7LhOtJhznB3JuekvE'; // Buraya kendi API anahtarınızı girin
+  final String _apiKey = ''; // Buraya kendi API anahtarınızı girin
 
   Future<String?> getMoodAnalysis(
       String text, List<Message> history, String selectedMode) async {
